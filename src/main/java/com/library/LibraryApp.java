@@ -1,39 +1,29 @@
 package com.library;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.library.model.Book;
+import com.library.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpringBootApplication
+public class LibraryApp implements CommandLineRunner {
 
-class BookRepository {
-    public void saveBook(String title) {
-        System.out.println("Book saved to database: " + title);
-    }
-}
+    @Autowired
+    private BookRepository bookRepo;
 
-
-class BookService {
-    private BookRepository bookRepository;
-
-    
-    public void setBookRepository(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
-
-    public void addBook(String title) {
-        System.out.println("Adding book: " + title);
-        bookRepository.saveBook(title);
-    }
-}
-
-
-public class LibraryApp {
     public static void main(String[] args) {
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("context.xml");
+        SpringApplication.run(LibraryApp.class, args);
+    }
 
-        BookService bookService = (BookService) context.getBean("bookService");
-        bookService.addBook("Clean Code");
+    @Override
+    public void run(String... args) {
+        bookRepo.save(new Book(1L, "Spring in Action"));
+        bookRepo.save(new Book(2L, "Effective Java"));
 
-        ((ClassPathXmlApplicationContext) context).close();
+        bookRepo.findAll().forEach(book ->
+            System.out.println(book.getId() + " - " + book.getTitle())
+        );
     }
 }
